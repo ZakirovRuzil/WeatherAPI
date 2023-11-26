@@ -36,7 +36,7 @@ body{
 
 .search-box input{
     color: #06283D;
-    width: 80%;
+    width: 73%;
     font-size: 24px;
     font-weight: 500;
     text-transform: uppercase;
@@ -169,6 +169,22 @@ body{
 .weather-box, .weather-details{
     scale: 0;
     opacity: 0;
+}
+
+.error-state {
+    height: 400px;
+}
+
+.gl-hide {
+    display: none;
+}
+
+.gl-show {
+    display: block;
+}
+
+.expanded {
+    height: 590px;
 }
 
 .fadeIn{

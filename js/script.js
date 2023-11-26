@@ -1,68 +1,76 @@
 const container = document.querySelector('.container');
-const search = document.querySelector('.search-box button');
+const search = document.querySelector('.search-box');
 const weatherBox = document.querySelector('.weather-box');
 const weatherDetails = document.querySelector('.weather-details');
 const error404 = document.querySelector('.not-found');
+const APIKey = 'a802c1cd797bb75c3d77f768c81fb1a4';
+const searchInput = document.querySelector('.search-box input');
 
-search.addEventListener('click', () => {
+search.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-    const APIKey = 'a802c1cd797bb75c3d77f768c81fb1a4';
-    const city = document.querySelector('.search-box input').value;
+    const city = searchInput.value;
 
-    if (city === '')
-        return;
+    if (city === '') return;
 
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${APIKey}`)
         .then(response => response.json())
-        .then(json => {
-
-            if (json.cod === '404') {
-                container.style.height = '400px';
-                weatherBox.style.display = 'none';
-                weatherDetails.style.display = 'none';
-                error404.style.display = 'block';
-                error404.classList.add('fadeIn');
-                return;
-            }
-
-            error404.style.display = 'none';
-            error404.classList.remove('fadeIn');
-
-            const image = document.querySelector('.weather-box img');
-            const temperature = document.querySelector('.weather-box .temperature');
-            const description = document.querySelector('.weather-box .description');
-            const humidity = document.querySelector('.weather-details .humidity span');
-            const wind = document.querySelector('.weather-details .wind span');
-
-            switch (json.weather[0].main) {
-                case 'Clear':
-                    image.src = 'images/container/clear.png';
-                    break;
-                case 'Rain':
-                    image.src = 'images/container/rain.png';
-                    break;
-                case 'Snow':
-                    image.src = 'images/container/snow.png';
-                    break;
-                case 'Clouds':
-                    image.src = 'images/container/cloud.png';
-                    break;
-                case 'Haze':
-                    image.src = 'images/container/mist.png';
-                    break;
-                default:
-                    image.src = '';
-            }
-
-            temperature.innerHTML = `${parseInt(json.main.temp)}<span>°C</span>`;
-            description.innerHTML = `${json.weather[0].description}`;
-            humidity.innerHTML = `${json.main.humidity}%`;
-            wind.innerHTML = `${parseInt(json.wind.speed)}Km/h`;
-
-            weatherBox.style.display = '';
-            weatherDetails.style.display = '';
-            weatherBox.classList.add('fadeIn');
-            weatherDetails.classList.add('fadeIn');
-            container.style.height = '590px';
-        });
+        .then(json => handleWeatherData(json))
+        .catch(error => handleFetchError(error));
 });
+
+function handleWeatherData(json) {
+    const CLIENT_ERR_CODE = '404';
+
+    if (json.cod === CLIENT_ERR_CODE) {
+        displayError();
+        return;
+    }
+
+    hideError();
+    renderWeatherData(json);
+    container.classList.add('expanded');
+}
+
+function handleFetchError(error) {
+    console.error('Error fetching weather data:', error);
+    displayError();
+    container.classList.remove('expanded');
+}
+
+function displayError() {
+    container.classList.add('error-state');
+    weatherBox.classList.add('gl-hide');
+    weatherDetails.classList.add('gl-hide');
+    error404.classList.add('gl-show');
+    error404.classList.add('fadeIn');
+    container.classList.remove('expanded');
+}
+
+function hideError() {
+    error404.classList.add('gl-hide');
+    error404.classList.remove('fadeIn');
+}
+
+function renderWeatherData(json) {
+    const image = document.querySelector('.weather-box img');
+    const temperature = document.querySelector('.weather-box .temperature');
+    const description = document.querySelector('.weather-box .description');
+    const humidity = document.querySelector('.humidity span');
+    const wind = document.querySelector('.wind span');
+
+    const weatherMain = json.weather[0].main.toLowerCase();
+    if (json.weather[0].icon === '50d') weatherMain = json.weather[0].icon;
+    image.src = `images/container/${weatherMain}.png`;
+ 
+    temperature.innerText = `${parseInt(json.main.temp)}°C`;
+    description.innerText = `${json.weather[0].description}`;
+    humidity.innerText = `${json.main.humidity}%`;
+    wind.innerText = `${parseInt(json.wind.speed)}Km/h`;
+
+    weatherBox.classList.remove('gl-hide');
+    weatherDetails.classList.remove('gl-hide');
+    weatherBox.classList.add('fadeIn');
+    weatherDetails.classList.add('fadeIn');
+}
+
