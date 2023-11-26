@@ -58,7 +58,7 @@ function renderWeatherData(json) {
     const humidity = document.querySelector('.humidity span');
     const wind = document.querySelector('.wind span');
 
-    const weatherMain = json.weather[0].main.toLowerCase();
+    let weatherMain = json.weather[0].main.toLowerCase();
     if (json.weather[0].icon === '50d') weatherMain = json.weather[0].icon;
     image.src = `images/container/${weatherMain}.png`;
 
